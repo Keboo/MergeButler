@@ -21,6 +21,8 @@
   <ItemGroup>
     <PackageReference Include="GitHub.Copilot.SDK" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="Octokit" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="YamlDotNet" />

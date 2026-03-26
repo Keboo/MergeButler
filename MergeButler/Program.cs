@@ -15,7 +15,8 @@ public sealed class Program
     {
         RootCommand rootCommand = new("MergeButler - Automated PR approval tool")
         {
-            EvaluateCommand.Create()
+            EvaluateCommand.Create(),
+            McpCommand.Create()
         };
 
         return rootCommand;

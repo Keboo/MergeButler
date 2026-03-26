@@ -37,6 +37,16 @@ public class ProgramTests
         Assert.Contains("MergeButler", stdOut.ToString());
     }
 
+    [Fact]
+    public async Task Invoke_RootHelp_ShowsMcpCommand()
+    {
+        using StringWriter stdOut = new();
+        int exitCode = await Invoke("--help", stdOut);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("mcp", stdOut.ToString());
+    }
+
     private static Task<int> Invoke(string commandLine, StringWriter console)
     {
         RootCommand rootCommand = Program.BuildCommandLine();

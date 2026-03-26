@@ -91,3 +91,35 @@ rules:
 
 - **GitHub** — uses [Octokit](https://github.com/octokit/octokit.net)
 - **Azure DevOps** — uses the REST API directly
+
+## MCP Server (Local Development)
+
+MergeButler includes an MCP (Model Context Protocol) server for interactive use with AI assistants like GitHub Copilot.
+
+```bash
+MergeButler mcp
+```
+
+This starts a stdio-based MCP server exposing two tools:
+
+| Tool | Description |
+|------|-------------|
+| `grade_pull_request` | Evaluates a PR against your rules and returns a detailed report |
+| `approve_pull_request` | Submits an approval on a PR via the platform API |
+
+### VS Code / Copilot Chat Configuration
+
+Add to your `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "mergebutler": {
+      "command": "dotnet",
+      "args": ["run", "--project", "MergeButler", "--", "mcp"]
+    }
+  }
+}
+```
+
+Both tools accept `prUrl`, `platform`, and an optional `token` parameter. If no token is provided, the tools check environment variables (`GITHUB_TOKEN` / `AZURE_DEVOPS_TOKEN`) and return a descriptive error if none is found.

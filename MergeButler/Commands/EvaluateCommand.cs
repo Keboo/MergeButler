@@ -3,7 +3,6 @@ using GitHub.Copilot.SDK;
 using MergeButler.Config;
 using MergeButler.PullRequests;
 using MergeButler.Rules;
-using Octokit;
 
 namespace MergeButler.Commands;
 
@@ -70,12 +69,7 @@ public static class EvaluateCommand
         output.WriteLine($"Loaded configuration with {config.Exclusions.Count} exclusion(s) and {config.Rules.Count} rule(s).");
 
         // Resolve token from environment if not provided
-        token ??= platform switch
-        {
-            Platform.GitHub => Environment.GetEnvironmentVariable("GITHUB_TOKEN"),
-            Platform.AzureDevOps => Environment.GetEnvironmentVariable("AZURE_DEVOPS_TOKEN"),
-            _ => null
-        };
+        token = PlatformServiceFactory.ResolveToken(platform, token);
 
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -84,35 +78,7 @@ public static class EvaluateCommand
         }
 
         // Create platform services
-        IPullRequestProvider provider;
-        IPullRequestApprover approver;
-
-        switch (platform)
-        {
-            case Platform.GitHub:
-                GitHubClient ghClient = new(new ProductHeaderValue("MergeButler"))
-                {
-                    Credentials = new Credentials(token)
-                };
-                GitHubPullRequestService ghService = new(ghClient);
-                provider = ghService;
-                approver = ghService;
-                break;
-
-            case Platform.AzureDevOps:
-                HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",
-                        Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($":{token}")));
-                AzureDevOpsPullRequestService azdoService = new(httpClient);
-                provider = azdoService;
-                approver = azdoService;
-                break;
-
-            default:
-                output.WriteLine($"Error: Unsupported platform '{platform}'.");
-                return;
-        }
+        (IPullRequestProvider provider, IPullRequestApprover approver) = PlatformServiceFactory.CreateServices(platform, token);
 
         // Fetch PR info
         output.WriteLine($"Fetching PR info from {platform}...");
