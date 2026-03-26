@@ -1,0 +1,42 @@
+# MergeButler sample configuration
+# Place this file at the root of your repository as .mergebutler.yml
+
+# Exclusions are checked first. If any pattern matches the PR title or description,
+# the PR will NOT be auto-approved regardless of rules.
+exclusions:
+  - pattern: "DO NOT AUTO-APPROVE"
+    target: title
+  - pattern: "\\[manual review\\]"
+    target: both
+
+# Rules are evaluated with OR logic — if ANY rule matches, the PR is approved.
+rules:
+  # File glob rules approve when ALL changed files match the patterns (strict mode).
+  - name: "Documentation only"
+    type: fileGlob
+    patterns:
+      - "**/*.md"
+      - "docs/**"
+      - "LICENSE*"
+
+  - name: "CI/CD configuration"
+    type: fileGlob
+    patterns:
+      - ".github/**"
+      - ".azure-pipelines/**"
+      - "**/*.yml"
+      - "**/*.yaml"
+
+  - name: "Auto-generated files"
+    type: fileGlob
+    patterns:
+      - "**/Generated/**"
+      - "**/*.Designer.cs"
+      - "**/*.g.cs"
+
+  # Agentic rules use an LLM to evaluate the PR diff against the prompt.
+  - name: "Safe dependency updates"
+    type: agentic
+    prompt: >
+      Approve this PR if it only updates package/dependency versions
+      and does not change any application logic or behavior.
