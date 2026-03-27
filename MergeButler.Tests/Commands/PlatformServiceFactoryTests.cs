@@ -42,20 +42,18 @@ public class PlatformServiceFactoryTests
     }
 
     [Fact]
-    public void CreateServices_GitHub_ReturnsServices()
+    public void CreateService_GitHub_ReturnsService()
     {
-        var (provider, approver) = PlatformServiceFactory.CreateServices(Platform.GitHub, "fake-token");
+        var service = PlatformServiceFactory.CreateService(Platform.GitHub, "fake-token");
 
-        Assert.NotNull(provider);
-        Assert.NotNull(approver);
+        Assert.NotNull(service);
     }
 
     [Fact]
-    public void CreateServices_AzureDevOps_ReturnsServices()
+    public void CreateService_AzureDevOps_ReturnsService()
     {
-        var (provider, approver) = PlatformServiceFactory.CreateServices(Platform.AzureDevOps, "fake-token");
+        var service = PlatformServiceFactory.CreateService(Platform.AzureDevOps, "fake-token");
 
-        Assert.NotNull(provider);
-        Assert.NotNull(approver);
+        Assert.NotNull(service);
     }
 }

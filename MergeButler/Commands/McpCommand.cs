@@ -33,7 +33,8 @@ public static class McpCommand
                     };
                 })
                 .WithStdioServerTransport()
-                .WithTools<PullRequestTools>();
+                .WithTools<PullRequestTools>()
+                .WithTools<ConfigTools>();
 
             await builder.Build().RunAsync(cancellationToken);
         });
