@@ -3,7 +3,7 @@ using Octokit;
 
 namespace MergeButler.PullRequests;
 
-public sealed partial class GitHubPullRequestService : IPullRequestProvider, IPullRequestApprover
+public sealed partial class GitHubPullRequestService : IPullRequestService
 {
     private readonly IGitHubClient _gitHubClient;
 

@@ -35,8 +35,8 @@ public class PullRequestTools
         MergeButlerConfig config = loader.Load(configPath);
 
         // Fetch PR info
-        (IPullRequestProvider provider, _) = PlatformServiceFactory.CreateServices(platformEnum, token);
-        PullRequestInfo prInfo = await provider.GetPullRequestAsync(prUrl, cancellationToken);
+        IPullRequestService service = PlatformServiceFactory.CreateService(platformEnum, token);
+        PullRequestInfo prInfo = await service.GetPullRequestAsync(prUrl, cancellationToken);
 
         // Build rules — only deterministic rules (file globs) for MCP mode.
         // Agentic rules are reported as context for the calling LLM to evaluate.
@@ -138,8 +138,8 @@ public class PullRequestTools
             return $"ERROR: No authentication token provided. Please provide a token parameter or set the {envVar} environment variable.";
         }
 
-        (_, IPullRequestApprover approver) = PlatformServiceFactory.CreateServices(platformEnum, token);
-        await approver.ApproveAsync(prUrl, cancellationToken);
+        IPullRequestService service = PlatformServiceFactory.CreateService(platformEnum, token);
+        await service.ApproveAsync(prUrl, cancellationToken);
 
         return $"Successfully approved the pull request: {prUrl}";
     }

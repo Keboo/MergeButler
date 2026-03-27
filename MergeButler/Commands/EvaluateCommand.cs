@@ -34,12 +34,18 @@ public static class EvaluateCommand
             Description = "Authentication token for the platform API. Defaults to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable."
         };
 
+        Option<bool> dryRunOption = new("--dry-run", ["-n"])
+        {
+            Description = "Evaluate the pull request without submitting an approval."
+        };
+
         Command command = new("evaluate", "Evaluate a pull request against configured rules and optionally approve it.")
         {
             configOption,
             prOption,
             platformOption,
-            tokenOption
+            tokenOption,
+            dryRunOption
         };
 
         command.SetAction(async (parseResult, cancellationToken) =>
@@ -48,8 +54,9 @@ public static class EvaluateCommand
             string prUrl = parseResult.CommandResult.GetValue(prOption)!;
             Platform platform = parseResult.CommandResult.GetValue(platformOption);
             string? token = parseResult.CommandResult.GetValue(tokenOption);
+            bool dryRun = parseResult.CommandResult.GetValue(dryRunOption);
 
-            await ExecuteAsync(configPath, prUrl, platform, token, parseResult.InvocationConfiguration.Output, cancellationToken);
+            await ExecuteAsync(configPath, prUrl, platform, token, dryRun, parseResult.InvocationConfiguration.Output, cancellationToken);
         });
 
         return command;
@@ -60,6 +67,7 @@ public static class EvaluateCommand
         string prUrl,
         Platform platform,
         string? token,
+        bool dryRun,
         TextWriter output,
         CancellationToken cancellationToken)
     {
@@ -78,17 +86,17 @@ public static class EvaluateCommand
         }
 
         // Create platform services
-        (IPullRequestProvider provider, IPullRequestApprover approver) = PlatformServiceFactory.CreateServices(platform, token);
+        IPullRequestService service = PlatformServiceFactory.CreateService(platform, token);
 
         // Fetch PR info
         output.WriteLine($"Fetching PR info from {platform}...");
-        PullRequestInfo prInfo = await provider.GetPullRequestAsync(prUrl, cancellationToken);
+        PullRequestInfo prInfo = await service.GetPullRequestAsync(prUrl, cancellationToken);
         output.WriteLine($"PR: {prInfo.Title}");
         output.WriteLine($"Changed files: {prInfo.ChangedFiles.Count}");
 
         // Build rules — start Copilot client only if agentic rules exist
         bool hasAgenticRules = config.Rules.Any(r => r.Type == RuleType.Agentic);
-        GitHub.Copilot.SDK.CopilotClient? copilotClient = null;
+        CopilotClient? copilotClient = null;
         IPromptEvaluator? promptEvaluator = null;
 
         try
@@ -96,7 +104,7 @@ public static class EvaluateCommand
             if (hasAgenticRules)
             {
                 output.WriteLine("Starting GitHub Copilot for agentic evaluation...");
-                copilotClient = new GitHub.Copilot.SDK.CopilotClient(new CopilotClientOptions
+                copilotClient = new CopilotClient(new CopilotClientOptions
                 {
                     GitHubToken = token
                 });
@@ -130,8 +138,16 @@ public static class EvaluateCommand
             if (result.Approved)
             {
                 output.WriteLine($"APPROVED by rule '{result.MatchedRule}': {result.Reason}");
-                await approver.ApproveAsync(prUrl, cancellationToken);
-                output.WriteLine("Approval submitted successfully.");
+
+                if (dryRun)
+                {
+                    output.WriteLine("Dry run: skipping approval submission.");
+                }
+                else
+                {
+                    await service.ApproveAsync(prUrl, cancellationToken);
+                    output.WriteLine("Approval submitted successfully.");
+                }
             }
             else
             {

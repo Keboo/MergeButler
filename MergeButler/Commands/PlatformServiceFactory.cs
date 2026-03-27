@@ -16,35 +16,32 @@ public static class PlatformServiceFactory
             _ => null
         };
 
-    public static (IPullRequestProvider Provider, IPullRequestApprover Approver) CreateServices(
-        Platform platform, string token)
+    public static IPullRequestService CreateService(Platform platform, string token)
     {
         return platform switch
         {
-            Platform.GitHub => CreateGitHubServices(token),
-            Platform.AzureDevOps => CreateAzureDevOpsServices(token),
+            Platform.GitHub => CreateGitHubService(token),
+            Platform.AzureDevOps => CreateAzureDevOpsService(token),
             _ => throw new ArgumentException($"Unsupported platform: {platform}", nameof(platform))
         };
     }
 
-    private static (IPullRequestProvider, IPullRequestApprover) CreateGitHubServices(string token)
+    private static GitHubPullRequestService CreateGitHubService(string token)
     {
         GitHubClient ghClient = new(new ProductHeaderValue("MergeButler"))
         {
             Credentials = new Credentials(token)
         };
-        GitHubPullRequestService service = new(ghClient);
-        return (service, service);
+        return new(ghClient);
     }
 
-    private static (IPullRequestProvider, IPullRequestApprover) CreateAzureDevOpsServices(string token)
+    private static AzureDevOpsPullRequestService CreateAzureDevOpsService(string token)
     {
         HttpClient httpClient = new();
         httpClient.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",
                 Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($":{token}")));
-        AzureDevOpsPullRequestService service = new(httpClient);
-        return (service, service);
+        return new(httpClient);
     }
 
     public static Platform ParsePlatform(string platformStr)

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace MergeButler.PullRequests;
 
-public sealed partial class AzureDevOpsPullRequestService : IPullRequestProvider, IPullRequestApprover
+public sealed partial class AzureDevOpsPullRequestService : IPullRequestService
 {
     private readonly HttpClient _httpClient;
 
