@@ -221,3 +221,34 @@ Add to your `.vscode/mcp.json`:
 ```
 
 PR tools accept `prUrl`, `platform`, and an optional `token` parameter. If no token is provided, the tools check environment variables (`GITHUB_TOKEN` / `AZURE_DEVOPS_TOKEN`) and return a descriptive error if none is found.
+
+### `setup`
+
+Set up mergiraf, configure Git for structural merging, and install the resolve-conflicts Copilot skill into the current repository.
+
+```bash
+MergeButler setup [--yes]
+```
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--yes` | `-y` | Skip all prompts and perform every step automatically |
+
+The setup command walks you through these steps interactively (or runs them all with `--yes`):
+
+1. **Install mergiraf** — Detects your OS and available package manager (Homebrew on macOS, Scoop on Windows, Cargo as fallback) and installs [mergiraf](https://mergiraf.org), a structural merge tool.
+2. **Configure diff3** — Sets `merge.conflictStyle = diff3` globally so conflict markers include the common ancestor.
+3. **Enable rerere** — Enables `rerere.enabled = true` globally so Git remembers conflict resolutions.
+4. **Register merge driver** — Adds the mergiraf merge driver to your global Git config.
+5. **Global git attributes** — Adds `* merge=mergiraf` to `~/.config/git/attributes` so all files are routed through mergiraf.
+6. **Install skill** — Copies the resolve-conflicts Copilot skill to `.github/skills/resolve-conflicts/` in the current repo.
+
+#### Examples
+
+```bash
+# Interactive setup — prompts for each step
+MergeButler setup
+
+# Non-interactive — perform all steps automatically
+MergeButler setup --yes
+```

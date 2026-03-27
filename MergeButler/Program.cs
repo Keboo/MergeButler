@@ -17,7 +17,8 @@ public sealed class Program
         {
             EvaluateCommand.Create(),
             McpCommand.Create(),
-            ConfigCommand.Create()
+            ConfigCommand.Create(),
+            SetupCommand.Create()
         };
 
         return rootCommand;

@@ -9,11 +9,12 @@ This skill provides guidelines for AI coding agents to produce accurate, consist
 
 ## Project Overview
 
-MergeButler is a .NET CLI tool with three top-level commands:
+MergeButler is a .NET CLI tool with four top-level commands:
 
 - **`evaluate`** — Evaluate a pull request against configured rules and optionally approve it.
 - **`config`** — View or modify MergeButler configuration (exclusions and rules).
 - **`mcp`** — Start an MCP (Model Context Protocol) server for interactive use with AI assistants.
+- **`setup`** — Set up mergiraf, configure Git for structural merging, and install the resolve-conflicts Copilot skill.
 
 ### Architecture
 
@@ -23,6 +24,8 @@ MergeButler/
 │   ├── EvaluateCommand.cs
 │   ├── ConfigCommand.cs
 │   ├── McpCommand.cs
+│   ├── SetupCommand.cs
+│   ├── SkillInstaller.cs
 │   ├── PlatformServiceFactory.cs
 │   └── Platform.cs
 ├── Config/             # Configuration models and tiered loading
@@ -147,6 +150,27 @@ Exposes these tools:
 | `get_config` | Get the effective merged configuration with sources |
 | `set_exclusion` | Add or update an exclusion at user or repo level |
 | `set_rule` | Add or update a rule at user or repo level |
+
+### `setup`
+
+Set up mergiraf, configure Git for structural merging, and install the resolve-conflicts Copilot skill.
+
+```bash
+MergeButler setup [--yes]
+```
+
+| Option | Alias | Description |
+|--------|-------|-------------|
+| `--yes` | `-y` | Skip all prompts and perform every step automatically |
+
+Steps performed:
+
+1. Install mergiraf via detected package manager (brew / scoop / cargo)
+2. Configure `merge.conflictStyle = diff3`
+3. Enable `rerere.enabled = true`
+4. Register the mergiraf merge driver in global git config
+5. Add `* merge=mergiraf` to global git attributes
+6. Install the resolve-conflicts Copilot skill to `.github/skills/resolve-conflicts/`
 
 ## Configuration
 

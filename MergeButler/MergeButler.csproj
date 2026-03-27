@@ -28,4 +28,12 @@
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\\.github\\skills\\resolve-conflicts\\SKILL.md" LogicalName="MergeButler.Skills.resolve-conflicts.SKILL.md" />
+    <EmbeddedResource Include="..\\.github\\skills\\resolve-conflicts\\scripts\\conflict-status.sh" LogicalName="MergeButler.Skills.resolve-conflicts.scripts.conflict-status.sh" />
+    <EmbeddedResource Include="..\\.github\\skills\\resolve-conflicts\\scripts\\categorize-conflicts.sh" LogicalName="MergeButler.Skills.resolve-conflicts.scripts.categorize-conflicts.sh" />
+    <EmbeddedResource Include="..\\.github\\skills\\resolve-conflicts\\scripts\\conflict-status.ps1" LogicalName="MergeButler.Skills.resolve-conflicts.scripts.conflict-status.ps1" />
+    <EmbeddedResource Include="..\\.github\\skills\\resolve-conflicts\\scripts\\categorize-conflicts.ps1" LogicalName="MergeButler.Skills.resolve-conflicts.scripts.categorize-conflicts.ps1" />
+  </ItemGroup>
+
 </Project>
