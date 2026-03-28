@@ -30,4 +30,14 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
     <UserSecretsId>3b4bcbdb-f0c3-413b-a3c4-3d6dde92a53b</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Label="NuGet Package">
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup Label="NuGet Package">
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
 </Project>
