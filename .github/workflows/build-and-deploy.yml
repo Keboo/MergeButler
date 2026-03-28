@@ -29,16 +29,13 @@ jobs:
       - name: dotnet build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Install dotnet-coverage
-        run: dotnet tool install --global dotnet-coverage
-
       - name: dotnet test
-        run: dotnet-coverage collect "dotnet test --configuration Release --no-build" -f cobertura -o ./code-coverage/coverage.cobertura.xml
+        run: dotnet test --configuration Release --no-build -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
 
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.5.4
         with:
-          reports: code-coverage/**/coverage.cobertura.xml
+          reports: '**/TestResults/coverage.cobertura.xml'
           targetdir: coveragereport
           reporttypes: Html;MarkdownSummaryGithub
           title: 'Code Coverage'
