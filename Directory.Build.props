@@ -14,6 +14,7 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
     <LangVersion>14</LangVersion>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
 
+    
     <!-- 
     If you you like to see source generated files saved to disk you can enable the following:
     https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview?WT.mc_id=DT-MVP-5003472
@@ -31,12 +32,11 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet Package">
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup Label="NuGet Package">
-    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" />
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
