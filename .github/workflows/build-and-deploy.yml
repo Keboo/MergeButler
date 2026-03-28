@@ -29,8 +29,11 @@ jobs:
       - name: dotnet build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Install dotnet-coverage
+        run: dotnet tool install --global dotnet-coverage
+
       - name: dotnet test
-        run: dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ./code-coverage
+        run: dotnet-coverage collect "dotnet test --configuration Release --no-build" -f cobertura -o ./code-coverage/coverage.cobertura.xml
 
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.5.4
