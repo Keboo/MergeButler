@@ -30,7 +30,7 @@ public class AgenticRuleTests
         };
         AgenticRule rule = new(config, mockEvaluator.Object);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr());
+        RuleResult result = await rule.EvaluateAsync(CreatePr(), TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
         Assert.Contains("safe package update", result.Reason, StringComparison.OrdinalIgnoreCase);
@@ -51,7 +51,7 @@ public class AgenticRuleTests
         };
         AgenticRule rule = new(config, mockEvaluator.Object);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr());
+        RuleResult result = await rule.EvaluateAsync(CreatePr(), TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
         Assert.Contains("application logic", result.Reason, StringComparison.OrdinalIgnoreCase);
@@ -72,7 +72,7 @@ public class AgenticRuleTests
         };
         AgenticRule rule = new(config, mockEvaluator.Object);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr());
+        RuleResult result = await rule.EvaluateAsync(CreatePr(), TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
         Assert.Equal("Copilot approved the PR.", result.Reason);
@@ -95,7 +95,7 @@ public class AgenticRuleTests
         };
         AgenticRule rule = new(config, mockEvaluator.Object);
 
-        await rule.EvaluateAsync(CreatePr());
+        await rule.EvaluateAsync(CreatePr(), TestContext.Current.CancellationToken);
 
         Assert.NotNull(capturedPrompt);
         Assert.Contains("Update packages", capturedPrompt);

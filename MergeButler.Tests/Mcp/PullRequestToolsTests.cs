@@ -16,7 +16,8 @@ public class PullRequestToolsTests
             string result = await PullRequestTools.GradePullRequest(
                 "https://github.com/owner/repo/pull/1",
                 "GitHub",
-                token: null);
+                token: null,
+                cancellationToken: TestContext.Current.CancellationToken);
 
             Assert.Contains("ERROR", result);
             Assert.Contains("token", result, StringComparison.OrdinalIgnoreCase);
@@ -34,7 +35,8 @@ public class PullRequestToolsTests
             PullRequestTools.GradePullRequest(
                 "https://github.com/owner/repo/pull/1",
                 "InvalidPlatform",
-                token: "fake-token"));
+                token: "fake-token",
+                cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -48,7 +50,8 @@ public class PullRequestToolsTests
             string result = await PullRequestTools.ApprovePullRequest(
                 "https://github.com/owner/repo/pull/1",
                 "GitHub",
-                token: null);
+                token: null,
+                cancellationToken: TestContext.Current.CancellationToken);
 
             Assert.Contains("ERROR", result);
             Assert.Contains("token", result, StringComparison.OrdinalIgnoreCase);
@@ -66,7 +69,8 @@ public class PullRequestToolsTests
             PullRequestTools.ApprovePullRequest(
                 "https://github.com/owner/repo/pull/1",
                 "InvalidPlatform",
-                token: "fake-token"));
+                token: "fake-token",
+                cancellationToken: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -77,6 +81,7 @@ public class PullRequestToolsTests
                 "https://github.com/owner/repo/pull/1",
                 "GitHub",
                 configPath: "nonexistent-config.yml",
-                token: "fake-token"));
+                token: "fake-token",
+                cancellationToken: TestContext.Current.CancellationToken));
     }
 }

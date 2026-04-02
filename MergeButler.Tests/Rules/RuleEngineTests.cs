@@ -31,7 +31,8 @@ public class RuleEngineTests
 
         EvaluationResult result = await engine.EvaluateAsync(
             CreatePr(title: "DO NOT AUTO-APPROVE this PR"),
-            exclusions);
+            exclusions,
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
         Assert.True(result.Excluded);
@@ -48,7 +49,7 @@ public class RuleEngineTests
 
         RuleEngine engine = new(exclusionEvaluator, [mockRule.Object]);
 
-        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), []);
+        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), [], TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
         Assert.False(result.Excluded);
@@ -65,7 +66,7 @@ public class RuleEngineTests
 
         RuleEngine engine = new(exclusionEvaluator, [mockRule.Object]);
 
-        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), []);
+        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), [], TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
         Assert.False(result.Excluded);
@@ -89,7 +90,7 @@ public class RuleEngineTests
 
         RuleEngine engine = new(exclusionEvaluator, [failRule.Object, passRule.Object, neverCalled.Object]);
 
-        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), []);
+        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), [], TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
         Assert.Equal("Pass Rule", result.MatchedRule);
@@ -114,7 +115,8 @@ public class RuleEngineTests
 
         EvaluationResult result = await engine.EvaluateAsync(
             CreatePr(title: "SKIP this PR"),
-            exclusions);
+            exclusions,
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
         Assert.True(result.Excluded);
@@ -127,7 +129,7 @@ public class RuleEngineTests
         ExclusionEvaluator exclusionEvaluator = new();
         RuleEngine engine = new(exclusionEvaluator, []);
 
-        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), []);
+        EvaluationResult result = await engine.EvaluateAsync(CreatePr(), [], TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
         Assert.False(result.Excluded);
