@@ -10,11 +10,9 @@ public static class EvaluateCommand
 {
     public static Command Create()
     {
-        Option<string> configOption = new("--config", ["-c"])
+        Option<string?> configOption = new("--config", ["-c"])
         {
-            Description = "Path to the MergeButler YAML configuration file.",
-            DefaultValueFactory = _ => "mergebutler.yaml",
-            Required = true
+            Description = "Path to a MergeButler YAML configuration file. When omitted, the effective config is built from the default user (~/.mergebutler/config.yaml) and repo (.mergebutler/config.yaml) locations.",
         };
 
         Option<string> prOption = new("--pr")
@@ -50,7 +48,7 @@ public static class EvaluateCommand
 
         command.SetAction(async (parseResult, cancellationToken) =>
         {
-            string configPath = parseResult.CommandResult.GetValue(configOption)!;
+            string? configPath = parseResult.CommandResult.GetValue(configOption);
             string prUrl = parseResult.CommandResult.GetValue(prOption)!;
             Platform platform = parseResult.CommandResult.GetValue(platformOption);
             string? token = parseResult.CommandResult.GetValue(tokenOption);
@@ -63,7 +61,7 @@ public static class EvaluateCommand
     }
 
     internal static async Task ExecuteAsync(
-        string configPath,
+        string? configPath,
         string prUrl,
         Platform platform,
         string? token,
@@ -72,8 +70,23 @@ public static class EvaluateCommand
         CancellationToken cancellationToken)
     {
         // Load configuration
-        ConfigLoader loader = new();
-        MergeButlerConfig config = loader.Load(configPath);
+        MergeButlerConfig config;
+        if (configPath is not null)
+        {
+            ConfigLoader loader = new();
+            config = loader.Load(configPath);
+        }
+        else
+        {
+            TieredConfigManager manager = new();
+            config = manager.LoadEffectiveConfig();
+        }
+
+        if (config.Exclusions.Count == 0 && config.Rules.Count == 0)
+        {
+            output.WriteLine("Warning: Configuration is empty. No exclusions or rules are defined.");
+        }
+
         output.WriteLine($"Loaded configuration with {config.Exclusions.Count} exclusion(s) and {config.Rules.Count} rule(s).");
 
         // Resolve token from environment if not provided
