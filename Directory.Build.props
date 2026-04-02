@@ -13,6 +13,7 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
     <Nullable>enable</Nullable>
     <LangVersion>14</LangVersion>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
 
     
     <!-- 

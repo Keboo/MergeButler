@@ -26,7 +26,7 @@ public class FileGlobRuleTests
         };
         FileGlobRule rule = new(config);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", "docs/guide.md"));
+        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", "docs/guide.md"), TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
     }
@@ -42,7 +42,7 @@ public class FileGlobRuleTests
         };
         FileGlobRule rule = new(config);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", ".github/dependabot.yml"));
+        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", ".github/dependabot.yml"), TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
     }
@@ -58,7 +58,7 @@ public class FileGlobRuleTests
         };
         FileGlobRule rule = new(config);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", "src/Program.cs"));
+        RuleResult result = await rule.EvaluateAsync(CreatePr("README.md", "src/Program.cs"), TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
     }
@@ -74,7 +74,7 @@ public class FileGlobRuleTests
         };
         FileGlobRule rule = new(config);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr());
+        RuleResult result = await rule.EvaluateAsync(CreatePr(), TestContext.Current.CancellationToken);
 
         Assert.False(result.Approved);
     }
@@ -90,7 +90,7 @@ public class FileGlobRuleTests
         };
         FileGlobRule rule = new(config);
 
-        RuleResult result = await rule.EvaluateAsync(CreatePr("docs/readme.md", "docs/api/reference.md"));
+        RuleResult result = await rule.EvaluateAsync(CreatePr("docs/readme.md", "docs/api/reference.md"), TestContext.Current.CancellationToken);
 
         Assert.True(result.Approved);
     }
@@ -120,7 +120,7 @@ public class FileGlobRuleTests
         FileGlobRule rule = new(config);
 
         Assert.Equal("My Rule", rule.Name);
-        RuleResult result = await rule.EvaluateAsync(CreatePr("file.md"));
+        RuleResult result = await rule.EvaluateAsync(CreatePr("file.md"), TestContext.Current.CancellationToken);
         Assert.Equal("My Rule", result.RuleName);
     }
 }
