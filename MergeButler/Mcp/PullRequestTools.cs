@@ -17,7 +17,7 @@ public class PullRequestTools
     public static async Task<string> GradePullRequest(
         [Description("Full URL of the pull request (e.g. https://github.com/owner/repo/pull/42)")] string prUrl,
         [Description("Platform hosting the PR: GitHub or AzureDevOps")] string platform,
-        [Description("Path to MergeButler YAML config file")] string configPath = ".mergebutler.yml",
+        [Description("Path to MergeButler YAML config file. When omitted, the effective config is built from the default user and repo locations.")] string? configPath = null,
         [Description("Auth token for the platform API. If not provided, falls back to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable.")] string? token = null,
         CancellationToken cancellationToken = default)
     {
@@ -31,8 +31,17 @@ public class PullRequestTools
         }
 
         // Load config
-        ConfigLoader loader = new();
-        MergeButlerConfig config = loader.Load(configPath);
+        MergeButlerConfig config;
+        if (configPath is not null)
+        {
+            ConfigLoader loader = new();
+            config = loader.Load(configPath);
+        }
+        else
+        {
+            TieredConfigManager manager = new();
+            config = manager.LoadEffectiveConfig();
+        }
 
         // Fetch PR info
         IPullRequestService service = PlatformServiceFactory.CreateService(platformEnum, token);
