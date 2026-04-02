@@ -19,7 +19,7 @@ public static class EvaluateCommand
 
         Option<string> prOption = new("--pr")
         {
-            Description = "URL of the pull request to evaluate.",
+            Description = "URL or number of the pull request to evaluate. When a number is provided, the repository is inferred from the git remote.",
             Required = true
         };
 
@@ -87,6 +87,9 @@ public static class EvaluateCommand
 
         // Create platform services
         IPullRequestService service = PlatformServiceFactory.CreateService(platform, token);
+
+        // Resolve PR reference (URL or number) to full URL
+        prUrl = await PullRequestUrlResolver.ResolveFromGitRemoteAsync(prUrl, platform);
 
         // Fetch PR info
         output.WriteLine($"Fetching PR info from {platform}...");
