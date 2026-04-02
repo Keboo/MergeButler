@@ -89,28 +89,40 @@ MergeButler config set-exclusion "DO NOT MERGE" --target title
 MergeButler config set-exclusion "\\[wip\\]" --target both --scope User
 ```
 
-#### `config set-rule`
+#### `config set-rule file`
 
-Add or update a rule.
+Add or update a file glob rule.
 
 ```bash
-MergeButler config set-rule <name> --type <FileGlob|Agentic> [--patterns <glob>...] [--prompt <text>] [--scope <User|Repo>]
+MergeButler config set-rule file <name> --patterns <glob>... [--scope <User|Repo>]
 ```
 
 | Option | Alias | Required | Description |
 |--------|-------|----------|-------------|
 | `<name>` | | Yes | Rule name / unique identifier (positional argument) |
-| `--type` | | Yes | `FileGlob` or `Agentic` |
-| `--patterns` | | Conditional | Glob patterns (required for `FileGlob` rules) |
-| `--prompt` | | Conditional | Evaluation prompt (required for `Agentic` rules) |
+| `--patterns` | | Yes | Glob patterns to match files |
 | `--scope` | `-s` | No | Where to save: `User` or `Repo` (default: `Repo`) |
 
 ```bash
-# Add a file glob rule
-MergeButler config set-rule "Docs only" --type FileGlob --patterns "**/*.md" --patterns "docs/**"
+MergeButler config set-rule file "Docs only" --patterns "**/*.md" --patterns "docs/**"
+```
 
-# Add an agentic rule at user level
-MergeButler config set-rule "Safe deps" --type Agentic --prompt "Approve if only dependency versions changed" --scope User
+#### `config set-rule agent`
+
+Add or update an agentic rule.
+
+```bash
+MergeButler config set-rule agent <name> --prompt <text> [--scope <User|Repo>]
+```
+
+| Option | Alias | Required | Description |
+|--------|-------|----------|-------------|
+| `<name>` | | Yes | Rule name / unique identifier (positional argument) |
+| `--prompt` | | Yes | Evaluation prompt for the agentic rule |
+| `--scope` | `-s` | No | Where to save: `User` or `Repo` (default: `Repo`) |
+
+```bash
+MergeButler config set-rule agent "Safe deps" --prompt "Approve if only dependency versions changed" --scope User
 ```
 
 ## Configuration

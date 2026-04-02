@@ -114,38 +114,94 @@ public static class ConfigCommand
 
     private static Command CreateSetRuleCommand()
     {
-        Argument<string> nameArgument = new("name")
+        Command command = new("set-rule", "Add or update a rule.")
         {
-            Description = "The rule name (used as unique identifier)."
+            CreateSetRuleFileCommand(),
+            CreateSetRuleAgentCommand()
         };
 
-        Option<RuleType> typeOption = new("--type")
-        {
-            Description = "The rule type.",
-            Required = true
-        };
+        return command;
+    }
+
+    private static Argument<string> CreateRuleNameArgument() => new("name")
+    {
+        Description = "The rule name (used as unique identifier)."
+    };
+
+    private static Option<ConfigScope> CreateRuleScopeOption() => new("--scope", ["-s"])
+    {
+        Description = "Where to save: user-level or repo-level.",
+        DefaultValueFactory = _ => ConfigScope.Repo
+    };
+
+    private static void SaveRule(TextWriter output, RuleConfig rule, ConfigScope scope)
+    {
+        TieredConfigManager manager = new();
+        manager.SetRule(rule, scope);
+        output.WriteLine($"Set rule \"{rule.Name}\" (type: {rule.Type}) at {scope.ToString().ToLowerInvariant()} level.");
+    }
+
+    private static Command CreateSetRuleFileCommand()
+    {
+        Argument<string> nameArgument = CreateRuleNameArgument();
 
         Option<string[]> patternsOption = new("--patterns")
         {
-            Description = "File glob patterns (for fileGlob rules). Specify multiple: --patterns *.md --patterns docs/**"
+            Description = "File glob patterns. Specify multiple: --patterns *.md --patterns docs/**",
+            Required = true
         };
 
-        Option<string?> promptOption = new("--prompt")
-        {
-            Description = "Evaluation prompt (for agentic rules)."
-        };
+        Option<ConfigScope> scopeOption = CreateRuleScopeOption();
 
-        Option<ConfigScope> scopeOption = new("--scope", ["-s"])
-        {
-            Description = "Where to save: user-level or repo-level.",
-            DefaultValueFactory = _ => ConfigScope.Repo
-        };
-
-        Command command = new("set-rule", "Add or update a rule.")
+        Command command = new("file", "Add or update a file glob rule.")
         {
             nameArgument,
-            typeOption,
             patternsOption,
+            scopeOption
+        };
+
+        command.SetAction((parseResult, _) =>
+        {
+            TextWriter output = parseResult.InvocationConfiguration.Output;
+            string name = parseResult.CommandResult.GetValue(nameArgument)!;
+            string[]? patterns = parseResult.CommandResult.GetValue(patternsOption);
+            ConfigScope scope = parseResult.CommandResult.GetValue(scopeOption);
+
+            RuleConfig rule = new()
+            {
+                Name = name,
+                Type = RuleType.FileGlob,
+                Patterns = patterns?.ToList() ?? [],
+            };
+
+            if (rule.Patterns.Count == 0)
+            {
+                output.WriteLine("Error: file rules require at least one --patterns value.");
+                return Task.CompletedTask;
+            }
+
+            SaveRule(output, rule, scope);
+            return Task.CompletedTask;
+        });
+
+        return command;
+    }
+
+    private static Command CreateSetRuleAgentCommand()
+    {
+        Argument<string> nameArgument = CreateRuleNameArgument();
+
+        Option<string> promptOption = new("--prompt")
+        {
+            Description = "Evaluation prompt for the agentic rule.",
+            Required = true
+        };
+
+        Option<ConfigScope> scopeOption = CreateRuleScopeOption();
+
+        Command command = new("agent", "Add or update an agentic rule.")
+        {
+            nameArgument,
             promptOption,
             scopeOption
         };
@@ -154,35 +210,23 @@ public static class ConfigCommand
         {
             TextWriter output = parseResult.InvocationConfiguration.Output;
             string name = parseResult.CommandResult.GetValue(nameArgument)!;
-            RuleType type = parseResult.CommandResult.GetValue(typeOption);
-            string[]? patterns = parseResult.CommandResult.GetValue(patternsOption);
-            string? prompt = parseResult.CommandResult.GetValue(promptOption);
+            string prompt = parseResult.CommandResult.GetValue(promptOption)!;
             ConfigScope scope = parseResult.CommandResult.GetValue(scopeOption);
 
             RuleConfig rule = new()
             {
                 Name = name,
-                Type = type,
-                Patterns = patterns?.ToList() ?? [],
-                Prompt = prompt ?? string.Empty
+                Type = RuleType.Agentic,
+                Prompt = prompt
             };
 
-            // Validate
-            switch (type)
+            if (string.IsNullOrWhiteSpace(rule.Prompt))
             {
-                case RuleType.FileGlob when rule.Patterns.Count == 0:
-                    output.WriteLine("Error: fileGlob rules require at least one --patterns value.");
-                    return Task.CompletedTask;
-                case RuleType.Agentic when string.IsNullOrWhiteSpace(rule.Prompt):
-                    output.WriteLine("Error: agentic rules require a --prompt value.");
-                    return Task.CompletedTask;
+                output.WriteLine("Error: agent rules require a --prompt value.");
+                return Task.CompletedTask;
             }
 
-            TieredConfigManager manager = new();
-            manager.SetRule(rule, scope);
-
-            output.WriteLine($"Set rule \"{name}\" (type: {type}) at {scope.ToString().ToLowerInvariant()} level.");
-
+            SaveRule(output, rule, scope);
             return Task.CompletedTask;
         });
 
