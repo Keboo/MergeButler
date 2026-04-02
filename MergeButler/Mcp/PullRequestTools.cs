@@ -16,12 +16,25 @@ public class PullRequestTools
                  "This does NOT approve the PR — use approve_pull_request for that.")]
     public static async Task<string> GradePullRequest(
         [Description("Full URL of the pull request (e.g. https://github.com/owner/repo/pull/42)")] string prUrl,
-        [Description("Platform hosting the PR: GitHub or AzureDevOps")] string platform,
+        [Description("Platform hosting the PR: GitHub, AzureDevOps, or azdo. If not specified, inferred from git remotes.")] string? platform = null,
         [Description("Path to MergeButler YAML config file. When omitted, the effective config is built from the default user and repo locations.")] string? configPath = null,
         [Description("Auth token for the platform API. If not provided, falls back to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable.")] string? token = null,
         CancellationToken cancellationToken = default)
     {
-        Platform platformEnum = PlatformServiceFactory.ParsePlatform(platform);
+        Platform platformEnum;
+        if (platform is not null)
+        {
+            platformEnum = PlatformServiceFactory.ParsePlatform(platform);
+        }
+        else
+        {
+            Platform? detected = PlatformServiceFactory.DetectPlatformFromGitRemotes();
+            if (detected is null)
+            {
+                return "ERROR: Could not detect platform from git remotes. Please specify the platform parameter (GitHub, AzureDevOps, or azdo).";
+            }
+            platformEnum = detected.Value;
+        }
 
         token = PlatformServiceFactory.ResolveToken(platformEnum, token);
         if (string.IsNullOrWhiteSpace(token))
@@ -134,11 +147,24 @@ public class PullRequestTools
                  "Use grade_pull_request first to evaluate the PR before approving.")]
     public static async Task<string> ApprovePullRequest(
         [Description("Full URL of the pull request (e.g. https://github.com/owner/repo/pull/42)")] string prUrl,
-        [Description("Platform hosting the PR: GitHub or AzureDevOps")] string platform,
+        [Description("Platform hosting the PR: GitHub, AzureDevOps, or azdo. If not specified, inferred from git remotes.")] string? platform = null,
         [Description("Auth token for the platform API. If not provided, falls back to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable.")] string? token = null,
         CancellationToken cancellationToken = default)
     {
-        Platform platformEnum = PlatformServiceFactory.ParsePlatform(platform);
+        Platform platformEnum;
+        if (platform is not null)
+        {
+            platformEnum = PlatformServiceFactory.ParsePlatform(platform);
+        }
+        else
+        {
+            Platform? detected = PlatformServiceFactory.DetectPlatformFromGitRemotes();
+            if (detected is null)
+            {
+                return "ERROR: Could not detect platform from git remotes. Please specify the platform parameter (GitHub, AzureDevOps, or azdo).";
+            }
+            platformEnum = detected.Value;
+        }
 
         token = PlatformServiceFactory.ResolveToken(platformEnum, token);
         if (string.IsNullOrWhiteSpace(token))
