@@ -21,10 +21,9 @@ public static class EvaluateCommand
             Required = true
         };
 
-        Option<Platform> platformOption = new("--platform", ["-p"])
+        Option<string?> platformOption = new("--platform", ["-p"])
         {
-            Description = "The platform hosting the pull request.",
-            Required = true
+            Description = "The platform hosting the pull request (GitHub, AzureDevOps, azdo). Inferred from git remotes if not specified."
         };
 
         Option<string?> tokenOption = new("--token", ["-t"])
@@ -50,9 +49,26 @@ public static class EvaluateCommand
         {
             string? configPath = parseResult.CommandResult.GetValue(configOption);
             string prUrl = parseResult.CommandResult.GetValue(prOption)!;
-            Platform platform = parseResult.CommandResult.GetValue(platformOption);
+            string? platformStr = parseResult.CommandResult.GetValue(platformOption);
             string? token = parseResult.CommandResult.GetValue(tokenOption);
             bool dryRun = parseResult.CommandResult.GetValue(dryRunOption);
+
+            Platform platform;
+            if (platformStr is not null)
+            {
+                platform = PlatformServiceFactory.ParsePlatform(platformStr);
+            }
+            else
+            {
+                Platform? detected = PlatformServiceFactory.DetectPlatformFromGitRemotes();
+                if (detected is null)
+                {
+                    parseResult.InvocationConfiguration.Output.WriteLine(
+                        "Error: Could not detect platform from git remotes. Use --platform to specify GitHub, AzureDevOps, or azdo.");
+                    return;
+                }
+                platform = detected.Value;
+            }
 
             await ExecuteAsync(configPath, prUrl, platform, token, dryRun, parseResult.InvocationConfiguration.Output, cancellationToken);
         });
