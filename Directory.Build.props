@@ -35,6 +35,8 @@ See: https://learn.microsoft.com/visualstudio/msbuild/customize-your-build
   <PropertyGroup Label="NuGet Package">
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Use system-installed Copilot CLI instead of bundling it in the package -->
+    <CopilotSkipCliDownload>true</CopilotSkipCliDownload>
   </PropertyGroup>
 
   <ItemGroup Label="NuGet Package">
