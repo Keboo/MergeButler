@@ -138,7 +138,8 @@ public static class EvaluateCommand
                 output.WriteLine("Starting GitHub Copilot for agentic evaluation...");
                 copilotClient = new CopilotClient(new CopilotClientOptions
                 {
-                    GitHubToken = token
+                    GitHubToken = token,
+                    CliPath = "copilot"
                 });
                 await copilotClient.StartAsync(cancellationToken);
                 promptEvaluator = new CopilotPromptEvaluator(copilotClient);
