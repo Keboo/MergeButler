@@ -23,7 +23,7 @@ MergeButler evaluate --config .mergebutler.yml --pr <PR_URL> --platform <GitHub|
 | `--config` | `-c` | Yes | Path to the YAML configuration file |
 | `--pr` | | Yes | URL of the pull request to evaluate |
 | `--platform` | `-p` | Yes | `GitHub` or `AzureDevOps` |
-| `--token` | `-t` | No | Auth token. Defaults to `GITHUB_TOKEN` or `AZURE_DEVOPS_TOKEN` env var |
+| `--token` | `-t` | No | Auth token. Defaults to `MERGEBUTLER__GITHUB_TOKEN` or `MERGEBUTLER__AZURE_DEVOPS_TOKEN` env var |
 | `--dry-run` | `-n` | No | Evaluate without submitting an approval |
 
 #### Examples
@@ -32,8 +32,8 @@ MergeButler evaluate --config .mergebutler.yml --pr <PR_URL> --platform <GitHub|
 # GitHub PR
 MergeButler evaluate -c .mergebutler.yml --pr https://github.com/owner/repo/pull/42 -p GitHub
 
-# Azure DevOps PR
-MergeButler evaluate -c .mergebutler.yml --pr https://dev.azure.com/org/project/_git/repo/pullrequest/1 -p AzureDevOps -t $AZURE_DEVOPS_TOKEN
+# Azure DevOps PR using the default env var
+MERGEBUTLER__AZURE_DEVOPS_TOKEN=your-token MergeButler evaluate -c .mergebutler.yml --pr https://dev.azure.com/org/project/_git/repo/pullrequest/1 -p AzureDevOps
 
 # Dry run — see if a PR would be approved without actually approving it
 MergeButler evaluate -c .mergebutler.yml --pr https://github.com/owner/repo/pull/42 -p GitHub --dry-run
@@ -196,8 +196,8 @@ rules:
 
 | Platform | Library | Token env var |
 |----------|---------|---------------|
-| GitHub | [Octokit](https://github.com/octokit/octokit.net) | `GITHUB_TOKEN` |
-| Azure DevOps | REST API | `AZURE_DEVOPS_TOKEN` |
+| GitHub | [Octokit](https://github.com/octokit/octokit.net) | `MERGEBUTLER__GITHUB_TOKEN` |
+| Azure DevOps | REST API | `MERGEBUTLER__AZURE_DEVOPS_TOKEN` |
 
 ## MCP Server (Local Development)
 
@@ -232,7 +232,7 @@ Add to your `.vscode/mcp.json`:
 }
 ```
 
-PR tools accept `prUrl`, `platform`, and an optional `token` parameter. If no token is provided, the tools check environment variables (`GITHUB_TOKEN` / `AZURE_DEVOPS_TOKEN`) and return a descriptive error if none is found.
+PR tools accept `prUrl`, `platform`, and an optional `token` parameter. If no token is provided, the tools check environment variables (`MERGEBUTLER__GITHUB_TOKEN` / `MERGEBUTLER__AZURE_DEVOPS_TOKEN`) and return a descriptive error if none is found.
 
 ### `setup`
 

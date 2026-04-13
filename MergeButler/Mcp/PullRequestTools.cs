@@ -13,12 +13,12 @@ public class PullRequestTools
 {
     [McpServerTool(Name = "grade_pull_request"),
      Description("Evaluate a pull request against MergeButler rules and return the grading result. " +
-                 "This does NOT approve the PR — use approve_pull_request for that.")]
+                  "This does NOT approve the PR — use approve_pull_request for that.")]
     public static async Task<string> GradePullRequest(
         [Description("Full URL of the pull request (e.g. https://github.com/owner/repo/pull/42)")] string prUrl,
         [Description("Platform hosting the PR: GitHub, AzureDevOps, or azdo. If not specified, inferred from git remotes.")] string? platform = null,
         [Description("Path to MergeButler YAML config file. When omitted, the effective config is built from the default user and repo locations.")] string? configPath = null,
-        [Description("Auth token for the platform API. If not provided, falls back to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable.")] string? token = null,
+        [Description("Auth token for the platform API. If not provided, falls back to " + PlatformServiceFactory.TokenEnvironmentVariableNames + " environment variable.")] string? token = null,
         CancellationToken cancellationToken = default)
     {
         Platform platformEnum;
@@ -39,7 +39,7 @@ public class PullRequestTools
         token = PlatformServiceFactory.ResolveToken(platformEnum, token);
         if (string.IsNullOrWhiteSpace(token))
         {
-            string envVar = platformEnum == Platform.GitHub ? "GITHUB_TOKEN" : "AZURE_DEVOPS_TOKEN";
+            string envVar = PlatformServiceFactory.GetTokenEnvironmentVariableName(platformEnum);
             return $"ERROR: No authentication token provided. Please provide a token parameter or set the {envVar} environment variable.";
         }
 
@@ -144,11 +144,11 @@ public class PullRequestTools
 
     [McpServerTool(Name = "approve_pull_request"),
      Description("Submit an approval on a pull request. " +
-                 "Use grade_pull_request first to evaluate the PR before approving.")]
+                  "Use grade_pull_request first to evaluate the PR before approving.")]
     public static async Task<string> ApprovePullRequest(
         [Description("Full URL of the pull request (e.g. https://github.com/owner/repo/pull/42)")] string prUrl,
         [Description("Platform hosting the PR: GitHub, AzureDevOps, or azdo. If not specified, inferred from git remotes.")] string? platform = null,
-        [Description("Auth token for the platform API. If not provided, falls back to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable.")] string? token = null,
+        [Description("Auth token for the platform API. If not provided, falls back to " + PlatformServiceFactory.TokenEnvironmentVariableNames + " environment variable.")] string? token = null,
         CancellationToken cancellationToken = default)
     {
         Platform platformEnum;
@@ -169,7 +169,7 @@ public class PullRequestTools
         token = PlatformServiceFactory.ResolveToken(platformEnum, token);
         if (string.IsNullOrWhiteSpace(token))
         {
-            string envVar = platformEnum == Platform.GitHub ? "GITHUB_TOKEN" : "AZURE_DEVOPS_TOKEN";
+            string envVar = PlatformServiceFactory.GetTokenEnvironmentVariableName(platformEnum);
             return $"ERROR: No authentication token provided. Please provide a token parameter or set the {envVar} environment variable.";
         }
 

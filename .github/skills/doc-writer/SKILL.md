@@ -90,7 +90,7 @@ MergeButler evaluate --config <path> --pr <url> --platform <GitHub|AzureDevOps> 
 | `--config` | `-c` | Yes | Path to the YAML configuration file |
 | `--pr` | | Yes | URL of the pull request to evaluate |
 | `--platform` | `-p` | Yes | `GitHub` or `AzureDevOps` |
-| `--token` | `-t` | No | Auth token. Defaults to `GITHUB_TOKEN` or `AZURE_DEVOPS_TOKEN` env var |
+| `--token` | `-t` | No | Auth token. Defaults to `MERGEBUTLER__GITHUB_TOKEN` or `MERGEBUTLER__AZURE_DEVOPS_TOKEN` env var |
 | `--dry-run` | `-n` | No | Evaluate without submitting an approval |
 
 ### `config show`
@@ -240,8 +240,8 @@ Use GitHub Copilot to evaluate the PR diff against a natural-language prompt.
 
 | Platform | Library | Token env var |
 |----------|---------|---------------|
-| GitHub | [Octokit](https://github.com/octokit/octokit.net) | `GITHUB_TOKEN` |
-| Azure DevOps | REST API | `AZURE_DEVOPS_TOKEN` |
+| GitHub | [Octokit](https://github.com/octokit/octokit.net) | `MERGEBUTLER__GITHUB_TOKEN` |
+| Azure DevOps | REST API | `MERGEBUTLER__AZURE_DEVOPS_TOKEN` |
 
 ## Documentation Maintenance
 

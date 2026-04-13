@@ -9,12 +9,21 @@ namespace MergeButler.Commands;
 /// </summary>
 public static class PlatformServiceFactory
 {
+    public const string EnvironmentVariablePrefix = "MERGEBUTLER__";
+    public const string GitHubTokenEnvironmentVariable = EnvironmentVariablePrefix + "GITHUB_TOKEN";
+    public const string AzureDevOpsTokenEnvironmentVariable = EnvironmentVariablePrefix + "AZURE_DEVOPS_TOKEN";
+    public const string TokenEnvironmentVariableNames =
+        GitHubTokenEnvironmentVariable + " or " + AzureDevOpsTokenEnvironmentVariable;
+
     public static string? ResolveToken(Platform platform, string? providedToken) =>
-        providedToken ?? platform switch
+        providedToken ?? Environment.GetEnvironmentVariable(GetTokenEnvironmentVariableName(platform));
+
+    public static string GetTokenEnvironmentVariableName(Platform platform) =>
+        platform switch
         {
-            Platform.GitHub => Environment.GetEnvironmentVariable("GITHUB_TOKEN"),
-            Platform.AzureDevOps => Environment.GetEnvironmentVariable("AZURE_DEVOPS_TOKEN"),
-            _ => null
+            Platform.GitHub => GitHubTokenEnvironmentVariable,
+            Platform.AzureDevOps => AzureDevOpsTokenEnvironmentVariable,
+            _ => throw new ArgumentOutOfRangeException(nameof(platform), platform, "Unsupported platform.")
         };
 
     public static IPullRequestService CreateService(Platform platform, string token)

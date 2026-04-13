@@ -28,7 +28,8 @@ public static class EvaluateCommand
 
         Option<string?> tokenOption = new("--token", ["-t"])
         {
-            Description = "Authentication token for the platform API. Defaults to GITHUB_TOKEN or AZURE_DEVOPS_TOKEN environment variable."
+            Description = "Authentication token for the platform API. Defaults to " +
+                          PlatformServiceFactory.TokenEnvironmentVariableNames + " environment variable."
         };
 
         Option<bool> dryRunOption = new("--dry-run", ["-n"])
@@ -110,7 +111,8 @@ public static class EvaluateCommand
 
         if (string.IsNullOrWhiteSpace(token))
         {
-            output.WriteLine("Error: No authentication token provided. Use --token or set the appropriate environment variable.");
+            output.WriteLine(
+                $"Error: No authentication token provided. Use --token or set the {PlatformServiceFactory.GetTokenEnvironmentVariableName(platform)} environment variable.");
             return;
         }
 
