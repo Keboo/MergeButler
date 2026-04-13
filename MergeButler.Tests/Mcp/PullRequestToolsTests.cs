@@ -1,3 +1,4 @@
+using MergeButler.Commands;
 using MergeButler.Mcp;
 
 namespace MergeButler.Tests.Mcp;
@@ -8,9 +9,11 @@ public class PullRequestToolsTests
     public async Task GradePullRequest_NoToken_ReturnsError()
     {
         // Ensure env var is not set for this test
-        string? savedToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+        string? savedToken = Environment.GetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable);
+        string? savedLegacyToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
         try
         {
+            Environment.SetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable, null);
             Environment.SetEnvironmentVariable("GITHUB_TOKEN", null);
 
             string result = await PullRequestTools.GradePullRequest(
@@ -21,10 +24,12 @@ public class PullRequestToolsTests
 
             Assert.Contains("ERROR", result);
             Assert.Contains("token", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(PlatformServiceFactory.GitHubTokenEnvironmentVariable, result);
         }
         finally
         {
-            Environment.SetEnvironmentVariable("GITHUB_TOKEN", savedToken);
+            Environment.SetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable, savedToken);
+            Environment.SetEnvironmentVariable("GITHUB_TOKEN", savedLegacyToken);
         }
     }
 
@@ -42,9 +47,11 @@ public class PullRequestToolsTests
     [Fact]
     public async Task ApprovePullRequest_NoToken_ReturnsError()
     {
-        string? savedToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+        string? savedToken = Environment.GetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable);
+        string? savedLegacyToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
         try
         {
+            Environment.SetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable, null);
             Environment.SetEnvironmentVariable("GITHUB_TOKEN", null);
 
             string result = await PullRequestTools.ApprovePullRequest(
@@ -55,10 +62,12 @@ public class PullRequestToolsTests
 
             Assert.Contains("ERROR", result);
             Assert.Contains("token", result, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(PlatformServiceFactory.GitHubTokenEnvironmentVariable, result);
         }
         finally
         {
-            Environment.SetEnvironmentVariable("GITHUB_TOKEN", savedToken);
+            Environment.SetEnvironmentVariable(PlatformServiceFactory.GitHubTokenEnvironmentVariable, savedToken);
+            Environment.SetEnvironmentVariable("GITHUB_TOKEN", savedLegacyToken);
         }
     }
 

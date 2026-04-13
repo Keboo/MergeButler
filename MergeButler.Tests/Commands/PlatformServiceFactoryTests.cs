@@ -5,6 +5,16 @@ namespace MergeButler.Tests.Commands;
 public class PlatformServiceFactoryTests
 {
     [Theory]
+    [InlineData(Platform.GitHub, PlatformServiceFactory.GitHubTokenEnvironmentVariable)]
+    [InlineData(Platform.AzureDevOps, PlatformServiceFactory.AzureDevOpsTokenEnvironmentVariable)]
+    public void GetTokenEnvironmentVariableName_ReturnsPrefixedName(Platform platform, string expected)
+    {
+        string result = PlatformServiceFactory.GetTokenEnvironmentVariableName(platform);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
     [InlineData("GitHub", Platform.GitHub)]
     [InlineData("github", Platform.GitHub)]
     [InlineData("GITHUB", Platform.GitHub)]
@@ -35,13 +45,52 @@ public class PlatformServiceFactoryTests
         Assert.Equal("my-token", result);
     }
 
-    [Fact]
-    public void ResolveToken_NullToken_FallsBackToEnvVar()
+    [Theory]
+    [InlineData(Platform.GitHub, PlatformServiceFactory.GitHubTokenEnvironmentVariable, "GITHUB_TOKEN")]
+    [InlineData(Platform.AzureDevOps, PlatformServiceFactory.AzureDevOpsTokenEnvironmentVariable, "AZURE_DEVOPS_TOKEN")]
+    public void ResolveToken_NullToken_FallsBackToPrefixedEnvVar(Platform platform, string prefixedEnvVar, string legacyEnvVar)
     {
-        // If env var is not set, returns null
-        string? result = PlatformServiceFactory.ResolveToken(Platform.GitHub, null);
-        // Can't assert specific value since it depends on env, but shouldn't throw
-        Assert.True(result is null || result.Length > 0);
+        string? savedPrefixedToken = Environment.GetEnvironmentVariable(prefixedEnvVar);
+        string? savedLegacyToken = Environment.GetEnvironmentVariable(legacyEnvVar);
+
+        try
+        {
+            Environment.SetEnvironmentVariable(prefixedEnvVar, "prefixed-token");
+            Environment.SetEnvironmentVariable(legacyEnvVar, "legacy-token");
+
+            string? result = PlatformServiceFactory.ResolveToken(platform, null);
+
+            Assert.Equal("prefixed-token", result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(prefixedEnvVar, savedPrefixedToken);
+            Environment.SetEnvironmentVariable(legacyEnvVar, savedLegacyToken);
+        }
+    }
+
+    [Theory]
+    [InlineData(Platform.GitHub, PlatformServiceFactory.GitHubTokenEnvironmentVariable, "GITHUB_TOKEN")]
+    [InlineData(Platform.AzureDevOps, PlatformServiceFactory.AzureDevOpsTokenEnvironmentVariable, "AZURE_DEVOPS_TOKEN")]
+    public void ResolveToken_NullToken_DoesNotUseLegacyEnvVar(Platform platform, string prefixedEnvVar, string legacyEnvVar)
+    {
+        string? savedPrefixedToken = Environment.GetEnvironmentVariable(prefixedEnvVar);
+        string? savedLegacyToken = Environment.GetEnvironmentVariable(legacyEnvVar);
+
+        try
+        {
+            Environment.SetEnvironmentVariable(prefixedEnvVar, null);
+            Environment.SetEnvironmentVariable(legacyEnvVar, "legacy-token");
+
+            string? result = PlatformServiceFactory.ResolveToken(platform, null);
+
+            Assert.Null(result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(prefixedEnvVar, savedPrefixedToken);
+            Environment.SetEnvironmentVariable(legacyEnvVar, savedLegacyToken);
+        }
     }
 
     [Fact]
