@@ -41,6 +41,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
-    <PackageVersion Include="YamlDotNet" Version="17.0.1" />
+    <PackageVersion Include="YamlDotNet" Version="17.1.0" />
   </ItemGroup>
 </Project>
